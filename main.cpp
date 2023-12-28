@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
                     ++packetsReceived;
                     std::cout << "Reply from " << targetAddress << ": bytes=" << packetSize << std::endl;
                 } else {
-                    std::cout << "Error receiving response: " << receiveError.message() << std::endl;
+                    std::cout << "Error receiving response." << std::endl;
                 }
             } else {
                 std::cout << "Error sending packet: " << sendError.message() << std::endl;
