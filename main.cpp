@@ -91,8 +91,6 @@ int main(int argc, char* argv[]) {
 
         std::cout << "\nPing statistics for " << targetAddress << ":" << std::endl;
         std::cout << "    Packets: Sent = " << packetsSent << ", Received = " << packetsReceived << ", Lost = " << (packetsSent - packetsReceived) << " (" << ((packetsSent - packetsReceived) * 100 / packetsSent) << "% loss)" << std::endl;
-        std::cout << "Approximate round trip times in milli-seconds:" << std::endl;
-        std::cout << "    Minimum = 0ms, Maximum = 0ms, Average = 0ms" << std::endl;
 
     } catch (std::exception& e) {
         std::cout << "Exception: " << e.what() << std::endl;
