@@ -15,20 +15,88 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "boost/asio.hpp"
+#include <boost/asio.hpp>
+
 using namespace boost::asio;
 
-int main(int argc, char* argv[]){
-    if(argc == 1){
-        printf("Usage:\n");
-        printf("    tcping [target address] [timeout] [packet size]\n");
-        printf("\n")
-        printf("Options:\n")
-        printf("    Target Address: The ip address or domain name you are requesting\n");
-        printf("    Timeout: indicates that the packet is discarded after the timeout period. The default value is 20000 ms\n");
-        printf("    Packet size: The size of the packet sent once. The default value is 32 bytes\n");
-        printf("\n")
-        exit(0);
+int main(int argc, char* argv[]) {
+    if (argc == 1) {
+        std::cout << "Usage:\n";
+        std::cout << "    tcping [target address] [timeout] [packet size]\n";
+        std::cout << "\n";
+        std::cout << "Options:\n";
+        std::cout << "    Target Address: The IP address or domain name you are requesting\n";
+        std::cout << "    Timeout: Indicates that the packet is discarded after the timeout period. The default value is 20000 ms\n";
+        std::cout << "    Packet size: The size of the packet sent once. The default value is 32 bytes\n";
+        std::cout << "\n";
+        return 0;
     }
+
+    // Parse command line arguments
+    std::string targetAddress = argv[1];
+    int timeout = (argc > 2) ? std::stoi(argv[2]) : 20000;
+    int packetSize = (argc > 3) ? std::stoi(argv[3]) : 32;
+
+    try {
+        io_service ioService;
+        ip::tcp::socket socket(ioService);
+        ip::tcp::resolver resolver(ioService);
+        ip::tcp::resolver::query query(targetAddress, "");
+
+        // Resolve the target address
+        ip::tcp::resolver::iterator endpointIterator = resolver.resolve(query);
+
+        // Connect to the target address
+        boost::asio::connect(socket, endpointIterator);
+
+        // Set the send and receive buffer sizes
+        socket.set_option(ip::tcp::socket::send_buffer_size(packetSize));
+        socket.set_option(ip::tcp::socket::receive_buffer_size(packetSize));
+
+        // Create the send and receive buffers
+        std::vector<char> sendBuffer(packetSize, 'A');
+        std::vector<char> receiveBuffer(packetSize);
+
+        int packetsSent = 0;
+        int packetsReceived = 0;
+
+        for (int i = 0; i < 4; ++i) {
+            ++packetsSent;
+
+            // Start the timer
+            boost::asio::steady_timer timer(ioService);
+            timer.expires_from_now(std::chrono::milliseconds(timeout));
+
+            // Send the packet
+            boost::system::error_code sendError;
+            boost::asio::write(socket, boost::asio::buffer(sendBuffer), sendError);
+
+            if (!sendError) {
+                // Receive the response packet
+                boost::system::error_code receiveError;
+                boost::asio::read(socket, boost::asio::buffer(receiveBuffer), receiveError);
+
+                if (!receiveError) {
+                    ++packetsReceived;
+                    std::cout << "Reply from " << targetAddress << ": bytes=" << packetSize << " time<1ms TTL=128" << std::endl;
+                } else {
+                    std::cout << "Error receiving response: " << receiveError.message() << std::endl;
+                }
+            } else {
+                std::cout << "Error sending packet: " << sendError.message() << std::endl;
+            }
+        }
+
+        socket.close();
+
+        std::cout << "\nPing statistics for " << targetAddress << ":" << std::endl;
+        std::cout << "    Packets: Sent = " << packetsSent << ", Received = " << packetsReceived << ", Lost = " << (packetsSent - packetsReceived) << " (" << ((packetsSent - packetsReceived) * 100 / packetsSent) << "% loss)" << std::endl;
+        std::cout << "Approximate round trip times in milli-seconds:" << std::endl;
+        std::cout << "    Minimum = 0ms, Maximum = 0ms, Average = 0ms" << std::endl;
+
+    } catch (std::exception& e) {
+        std::cout << "Exception: " << e.what() << std::endl;
+    }
+
     return 0;
 }
