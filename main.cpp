@@ -15,6 +15,19 @@ limitations under the License.
 */
 
 #include <iostream>
-#include <boost/asio.hpp>
+#include "boost/asio.hpp"
 using namespace boost::asio;
 
+int main(int argc, char* argv[]){
+    if(argc == 1){
+        printf("TCPing 0.1.0\n");
+        printf("Usage:\n");
+        printf("tcping [target address] [timeout] [packet size]\n");
+        printf("\n")
+        printf("Target Address: The ip address or domain name you are requesting");
+        printf("Timeout: indicates that the packet is discarded after the timeout period. The default value is 20000 ms")
+        printf("Packet size: The size of the packet sent once. The default value is 32 bytes")
+        printf("\n")
+    }
+    return 0;
+}
