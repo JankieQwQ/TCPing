@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 
                 if (!receiveError) {
                     ++packetsReceived;
-                    std::cout << "Reply from " << targetAddress << ": bytes=" << packetSize << " time<1ms TTL=128" << std::endl;
+                    std::cout << "Reply from " << targetAddress << ": bytes=" << packetSize << std::endl;
                 } else {
                     std::cout << "Error receiving response: " << receiveError.message() << std::endl;
                 }
