@@ -28,6 +28,7 @@ int main(int argc, char* argv[]){
         printf("Timeout: indicates that the packet is discarded after the timeout period. The default value is 20000 ms")
         printf("Packet size: The size of the packet sent once. The default value is 32 bytes")
         printf("\n")
+        exit(0);
     }
     return 0;
 }
